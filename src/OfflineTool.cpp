@@ -101,6 +101,8 @@ doSerialize(std::string const& data)
 int
 doDeserialize(std::string const& data)
 {
+    using namespace ripple;
+
     auto const fail = [&]
     {
         std::cerr << "Unable to deserialize \"" << data << "\"" <<
@@ -112,7 +114,7 @@ doDeserialize(std::string const& data)
 
         if (result)
         {
-            std::cout << result->getJson(0).toStyledString() << std::endl;
+            std::cout << result->getJson(JsonOptions::none).toStyledString() << std::endl;
             return EXIT_SUCCESS;
         }
         else
@@ -137,6 +139,7 @@ doSign(std::string const& data,
     std::function<void(offline::RippleKey const& key,
         boost::optional<ripple::STTx>& tx)> signingOp)
 {
+    using namespace ripple;
     using namespace offline;
     auto const fail = [&]()
     {
@@ -160,7 +163,7 @@ doSign(std::string const& data,
 
         signingOp(rippleKey, tx);
 
-        std::cout << tx->getJson(0).toStyledString() << std::endl;
+        std::cout << tx->getJson(JsonOptions::none).toStyledString() << std::endl;
         return EXIT_SUCCESS;
     }
     catch (std::exception const& e)
@@ -207,9 +210,9 @@ doCreateKeyfile(boost::filesystem::path const& keyFile,
             keyFile.string());
 
     auto const kt = keytype ?
-        boost::optional<KeyType>{keyTypeFromString(*keytype)} :
+        keyTypeFromString(*keytype) :
         boost::none;
-    if (kt && *kt == KeyType::invalid)
+    if (keytype && !kt)
     {
         std::cerr << "Invalid key type: \"" << *keytype << "\"" <<
             std::endl;

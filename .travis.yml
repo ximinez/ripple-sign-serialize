@@ -1,9 +1,9 @@
 sudo: false
 language: cpp
+dist: xenial
 
 env:
   global:
-    - LLVM_VERSION=3.8.0
     # Maintenance note: to move to a new version
     # of boost, update both BOOST_ROOT and BOOST_URL.
     # Note that for simplicity, BOOST_ROOT's final
@@ -12,17 +12,21 @@ env:
     - LCOV_ROOT=$HOME/lcov
     - GDB_ROOT=$HOME/gdb
     - LCOV_EXCLUDE_FILES="*/src/test/*"
-    - BOOST_ROOT=$HOME/boost_1_67_0
-    - BOOST_URL='http://sourceforge.net/projects/boost/files/boost/1.67.0/boost_1_67_0.tar.gz'
+    - BOOST_ROOT=$HOME/boost_1_70_0
+    - BOOST_URL='http://sourceforge.net/projects/boost/files/boost/1.70.0/boost_1_70_0.tar.gz'
+    - APP=ripple-offline-tool
+    - APP_ARGS=--unittest
+    - VERBOSE_BUILD=true
+    - GCC_VER=9
 
 addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-trusty-5.0
+      - llvm-toolchain-xenial-8
     packages:
-      - gcc-5
-      - g++-5
+      - gcc-9
+      - g++-9
       - python-software-properties
       - protobuf-compiler
       - libprotobuf-dev
@@ -33,60 +37,51 @@ addons:
       - texinfo
       - cmake
       - lcov
-      - llvm-5.0
-      - clang-5.0
+      - llvm-8
+      - clang-8
 
 matrix:
   include:
 
     - compiler: gcc
       env:
-      - GCC_VER=5
       - BUILD_TYPE=Debug
-      - TARGET=coverage
       - CMAKE_EXTRA_ARGS=-Dcoverage=ON
-      - APP=ripple-offline-tool
-      - APP_ARGS=--unittest
 
     - compiler: clang
       env:
-      - GCC_VER=5
       - BUILD_TYPE=Debug
-      - APP=ripple-offline-tool
-      - APP_ARGS=--unittest
-      cache:
-        directories:
-          - $GDB_ROOT
 
     - compiler: gcc
       env:
-      - GCC_VER=5
       - BUILD_TYPE=Release
-      - APP=ripple-offline-tool
-      - APP_ARGS=--unittest
 
     - compiler: clang
       env:
-      - GCC_VER=5
       - BUILD_TYPE=Release
-      - APP=ripple-offline-tool
-      - APP_ARGS=--unittest
+
+    - compiler: gcc
+      env:
+      - BUILD_TYPE=Debug
+      - CMAKE_EXTRA_ARGS=-Drippled_tag=master
+
+    - compiler: gcc
+      env:
+      - BUILD_TYPE=Debug
+      - CMAKE_EXTRA_ARGS=-Drippled_tag=debug
 
 cache:
   directories:
   - $BOOST_ROOT
-  - $GDB_ROOT
 
 before_install:
-  - ( cd extras/rippled && bin/ci/ubuntu/install-dependencies.sh ../.. )
+  - ( ci/install-dependencies.sh )
+  - export PATH=/usr/local/bin:$PATH
 
 script:
-  - extras/rippled/bin/ci/ubuntu/build-and-test.sh
+  - ci/build-and-test.sh
 
 notifications:
   email:
     false
-  irc:
-    channels:
-      - "chat.freenode.net#ripple-dev"
 
