@@ -21,6 +21,8 @@
 #include <OfflineTool.h>
 #include <RippleKey.h>
 #include <Serialize.h>
+#include <ripple/basics/Slice.h>
+#include <ripple/basics/StringUtilities.h>
 #include <ripple/beast/core/SemanticVersion.h>
 #include <ripple/beast/unit_test.h>
 #include <beast/unit_test/dstream.hpp>
@@ -234,6 +236,33 @@ doCreateKeyfile(boost::filesystem::path const& keyFile,
     return EXIT_SUCCESS;
 }
 
+int doPublicKey(std::string const& publicKeyHex)
+{
+    auto error = [&publicKeyHex]()
+        -> boost::optional<const char*> {
+        using namespace ripple;
+        if (auto blob = strUnHex(publicKeyHex))
+        {
+            auto const slice = makeSlice(*blob);
+            if (!publicKeyType(slice))
+                return "Bad public key format.";
+            PublicKey const publicKey(slice);
+            auto const idSigner = calcAccountID(publicKey);
+            std::cout << "Public key: " << publicKey << "\nAccount ID: "
+                << idSigner << std::endl;
+            return {};
+        }
+        else
+        {
+            return "Invalid hex";
+        }
+    }();
+    if (error)
+        std::cerr << "Invalid public key " << publicKeyHex << " " << *error
+            << std::endl;
+    return EXIT_FAILURE;
+}
+
 std::string
 getStdin()
 {
@@ -291,6 +320,11 @@ runCommand (const std::string& command,
     {
         return doCreateKeyfile(keyFile, keyType, seed);
     };
+    auto const publickey = [](
+        auto const& publicKeyHex, auto const&, auto const&)
+    {
+        return doPublicKey(*publicKeyHex);
+    };
     auto const argumenterror = []()
     {
         throw std::runtime_error("Syntax error: Wrong number of arguments");
@@ -302,6 +336,7 @@ runCommand (const std::string& command,
             { "sign", { false, sign } },
             { "multisign", { false, multisign } },
             { "createkeyfile", { true, createkeyfile } },
+            { "publickey", {false, publickey} },
     };
 
     auto const iArgs = commandArgs.find(command);
@@ -370,6 +405,10 @@ R"(Commands:
     createkeyfile [<key>|--stdin]       Create keyfile. A random
       seed will be used if no <key> is provided on the command line
       or from standard input using --stdin.
+  Miscellaneous:
+    publickey <hex public key>          Get the account id from
+      a public key.
+
 
       Default keyfile is: )" << defaultKeyfile << "\n";
 }
