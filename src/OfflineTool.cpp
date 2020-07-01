@@ -27,6 +27,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <boost/preprocessor/stringize.hpp>
 #include <boost/program_options.hpp>
 #ifdef BOOST_MSVC
 # ifndef WIN32_LEAN_AND_MEAN // VC_EXTRALEAN
@@ -45,7 +46,7 @@ char const* const versionString =
     //  The build version number. You must edit this for each release
     //  and follow the format described at http://semver.org/
     //
-        "0.1.0"
+        "0.2.0"
 
 #if defined(DEBUG) || defined(SANITIZER)
        "+"
@@ -57,7 +58,7 @@ char const* const versionString =
 #endif
 
 #ifdef SANITIZER
-        BEAST_PP_STR1_(SANITIZER)
+        BOOST_PP_STRINGIZE(SANITIZER)
 #endif
 #endif
 

@@ -9,10 +9,20 @@ project (ripple-offline-tool)
   FetchContent.
   (See also: https://github.com/ripple/validator-keys-tool/blob/master/CMakeLists.txt)
 #]===========================================]
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Builds/CMake")
+include(OfflineNIH)
+
 get_directory_property(has_parent PARENT_DIRECTORY)
+if(coverage)
+  # Rippled also responds to the "coverage" flag, so clear it if it's set until
+  # the dependency is set up.
+  set(offline_coverage ${coverage})
+  set(coverage OFF CACHE BOOL "gcc/clang only" FORCE)
+endif()
 if (NOT has_parent)
   find_package(Ripple QUIET)
   if (NOT TARGET Ripple::xrpl_core)
+
     find_package(Git)
 
     if (NOT GIT_FOUND)
@@ -45,17 +55,23 @@ if (NOT has_parent)
     include (FetchContent)
     FetchContent_Declare(
       rippled_src
-      GIT_REPOSITORY https://github.com/ripple/rippled.git
+      GIT_REPOSITORY https://github.com/ximinez/rippled.git
       GIT_TAG ${rippled_tag}
     )
     FetchContent_GetProperties(rippled_src)
     if(NOT rippled_src_POPULATED)
       message (STATUS "Pausing to download rippled source...")
       FetchContent_Populate(rippled_src)
+      add_subdirectory(${rippled_src_SOURCE_DIR} ${rippled_src_BINARY_DIR})
     endif()
-    add_subdirectory(${rippled_src_SOURCE_DIR} xrpl_core)
   endif ()
 endif ()
+if(offline_coverage)
+  set(coverage ${offline_coverage} CACHE BOOL "gcc/clang only" FORCE)
+endif()
+include(OfflineSanity)
+include(OfflineCov)
+include(OfflineInterface)
 
 add_executable (ripple-offline-tool
   src/RippleKey.cpp
@@ -66,7 +82,7 @@ add_executable (ripple-offline-tool
   src/test/Serialize_test.cpp
   src/test/OfflineTool_test.cpp)
 target_include_directories (ripple-offline-tool PRIVATE src)
-target_link_libraries (ripple-offline-tool Ripple::xrpl_core)
+target_link_libraries (ripple-offline-tool Ripple::xrpl_core Offline::opts)
 
 if (has_parent)
   set_target_properties (validator-keys PROPERTIES EXCLUDE_FROM_ALL ON)
