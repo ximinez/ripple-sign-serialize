@@ -272,8 +272,7 @@ matrix:
         - brew uninstall --ignore-dependencies boost
       script:
         - mkdir -p build.macos && cd build.macos
-        - cmake -G Ninja ${CMAKE_EXTRA_ARGS} -DCMAKE_BUILD_TYPE=${BLD_CONFIG}
-          -Drippled_tag=travisorder ..
+        - cmake -G Ninja ${CMAKE_EXTRA_ARGS} -DCMAKE_BUILD_TYPE=${BLD_CONFIG} ..
           || cat $(pwd)/CMakeFiles/CMakeOutput.log $(pwd)/CMakeFiles/CMakeError.log
         - travis_wait ${MAX_TIME_MIN} cmake --build . --parallel --verbose
         - ./ripple-offline-tool --unittest ${TEST_EXTRA_ARGS}
@@ -350,8 +349,7 @@ matrix:
         - df -h
         - . ./ci/windows/setup-msvc.sh
         - mkdir -p build.ms && cd build.ms
-        - cmake -G Ninja ${CMAKE_EXTRA_ARGS} -DCMAKE_BUILD_TYPE=${BLD_CONFIG}
-          -Drippled_tag=travisorder ..
+        - cmake -G Ninja ${CMAKE_EXTRA_ARGS} -DCMAKE_BUILD_TYPE=${BLD_CONFIG} ..
           || cat $(pwd)/CMakeFiles/CMakeOutput.log $(pwd)/CMakeFiles/CMakeError.log
         - travis_wait ${MAX_TIME_MIN} cmake --build . --parallel --verbose
         # override num procs to force single unit test job

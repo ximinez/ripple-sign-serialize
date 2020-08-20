@@ -55,7 +55,7 @@ if (NOT has_parent)
     include (FetchContent)
     FetchContent_Declare(
       rippled_src
-      GIT_REPOSITORY https://github.com/ximinez/rippled.git
+      GIT_REPOSITORY https://github.com/ripple/rippled.git
       GIT_TAG ${rippled_tag}
     )
     FetchContent_GetProperties(rippled_src)
