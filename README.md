@@ -63,7 +63,7 @@ and run the following commands:
 > mkdir build
 > cd build
 > cmake -G"Visual Studio 15 2017 Win64" ..
-> cmake --build . -config Release --parallel
+> cmake --build . --config Release --parallel
 > .\Release\ripple-offline-tool.exe --unittest
 > .\Release\ripple-offline-tool.exe --help
 ```
