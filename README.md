@@ -50,7 +50,7 @@ $ cd ${YOUR_RIPPLE_SERIALIZE_DIRECTORY}
 $ mkdir -p build
 $ cd build
 $ cmake .. -DCMAKE_BUILD_TYPE=Release
-$ cmake --build .
+$ cmake --build . --parallel
 $ ./ripple-offline-tool --unittest
 $ ./ripple-offline-tool --help
 ```
@@ -63,7 +63,7 @@ and run the following commands:
 > mkdir build
 > cd build
 > cmake -G"Visual Studio 15 2017 Win64" ..
-> cmake --build . -config Release
+> cmake --build . -config Release --parallel
 > .\Release\ripple-offline-tool.exe --unittest
 > .\Release\ripple-offline-tool.exe --help
 ```
