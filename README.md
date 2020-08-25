@@ -47,9 +47,9 @@ For linux and other unix-like OSes, run the following commands:
 
 ```
 $ cd ${YOUR_RIPPLE_SERIALIZE_DIRECTORY}
-$ mkdir -p build/gcc.debug
-$ cd build/gcc.debug
-$ cmake ../.. -DCMAKE_BUILD_TYPE=Release
+$ mkdir -p build
+$ cd build
+$ cmake .. -DCMAKE_BUILD_TYPE=Release
 $ cmake --build .
 $ ./ripple-offline-tool --unittest
 $ ./ripple-offline-tool --help
